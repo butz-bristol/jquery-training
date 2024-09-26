@@ -1,0 +1,9 @@
+:root {
+  --tblr-font-sans-serif: Inter, -apple-system, BlinkMacSystemFont,
+    San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif !important;
+}
+body {
+  font-family: var(--tblr-font-sans-serif);
+
+  background-color: aliceblue;
+}
