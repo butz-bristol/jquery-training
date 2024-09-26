@@ -4,33 +4,6 @@
 
 */
 
-function handleInput() {
-  var firstname = $('#firstname').val();
-  var lastname = $('#lastname').val();
-  var email = $('#email').val();
-  var phone = $('#phone').val();
-  var username = $('#username').val();
-  var password = $('#password').val();
-  if (firstname) {
-    initialState = { ...initialState, firstname: firstname };
-  }
-  if (lastname) {
-    initialState = { ...initialState, lastname: lastname };
-  }
-  if (email) {
-    initialState = { ...initialState, email: email };
-  }
-  if (phone) {
-    initialState = { ...initialState, phone: phone };
-  }
-  if (username) {
-    initialState = { ...initialState, username: username };
-  }
-  if (password) {
-    initialState = { ...initialState, password: password };
-  }
-}
-
 function renderApplication(container) {
   let count = 0; // Local state
 

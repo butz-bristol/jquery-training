@@ -36,6 +36,34 @@ function findByMatchingProperties(users, properties) {
   });
 }
 
+function handleInput() {
+  var firstname = $('#firstname').val();
+  var lastname = $('#lastname').val();
+  var email = $('#email').val();
+  var phone = $('#phone').val();
+  var username = $('#username').val();
+  var password = $('#password').val();
+  if (firstname) {
+    initialState = { ...initialState, firstname: firstname };
+  }
+  if (lastname) {
+    initialState = { ...initialState, lastname: lastname };
+  }
+  if (email) {
+    initialState = { ...initialState, email: email };
+  }
+  if (phone) {
+    initialState = { ...initialState, phone: phone };
+  }
+  if (username) {
+    initialState = { ...initialState, username: username };
+  }
+  if (password) {
+    initialState = { ...initialState, password: password };
+  }
+  console.log(initialState);
+}
+
 var getUrlParameter = function getUrlParameter(sParam) {
   var sPageURL = window.location.search.substring(1),
     sURLVariables = sPageURL.split('&'),
@@ -60,11 +88,11 @@ toastr.options = {
   newestOnTop: true,
   progressBar: true,
   positionClass: 'toast-top-center',
-  preventDuplicates: false,
+  preventDuplicates: true,
   onclick: null,
   showDuration: '300',
   hideDuration: '1000',
-  timeOut: '5000',
+  timeOut: '3000',
   extendedTimeOut: '1000',
   showEasing: 'swing',
   hideEasing: 'linear',

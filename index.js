@@ -4,37 +4,50 @@
 
 */
 
-function handleInput() {
-  var username = $('#username').val();
-  var password = $('#password').val();
-  if (username) {
-    initialState = { ...initialState, username: username };
-  }
-  if (password) {
-    initialState = { ...initialState, password: password };
-  }
-}
-
 function renderApplication(container) {
   var loading = false;
   var viewUser = getUrlParameter('view');
 
-  var checkUser = findByMatchingProperties(initialState.users, {
-    username: viewUser,
+  const usersTable = $('#users').DataTable({
+    data: initialState.users?.filter(
+      (user) => user.username !== initialState.userProfile?.username
+    ),
+    columns: [
+      {
+        data: 'firstname',
+      },
+      { data: 'lastname' },
+      { data: 'username' },
+      {
+        data: null,
+        render: (data) =>
+          `<a href="?view=${data.username}" class="btn btn-sm btn-primary" id="view">View</a>`,
+      },
+    ],
   });
 
-  var fullName =
-    initialState.userProfile?.firstname +
-    ' ' +
-    initialState.userProfile?.lastname;
-  var selectedUser = {
-    fullname: checkUser[0]?.firstname + ' ' + checkUser[0]?.lastname,
-    username: checkUser[0]?.username,
-    email: checkUser[0]?.email,
-    phone: checkUser[0]?.phone,
-  };
-
   const render = () => {
+    var checkUser = findByMatchingProperties(
+      initialState.users?.filter(
+        (user) => user.username !== initialState.userProfile?.username
+      ),
+      {
+        username: viewUser,
+      }
+    );
+    var fullName =
+      initialState.userProfile?.firstname +
+      ' ' +
+      initialState.userProfile?.lastname;
+    var selectedUser = {
+      fullname: checkUser[0]?.firstname + ' ' + checkUser[0]?.lastname,
+      username: checkUser[0]?.username,
+      email: checkUser[0]?.email,
+      phone: checkUser[0]?.phone,
+    };
+    var foundIndex = initialState.users
+      .filter((user) => user.username !== initialState.userProfile?.username)
+      .findIndex((user) => user.username === checkUser[0]?.username);
     initialState.userProfile === null
       ? $(container).html(`
           <div class="d-flex flex-column min-vh-100 min-vw-100 text-center">
@@ -67,7 +80,7 @@ function renderApplication(container) {
                                     loading && 'disabled'
                                   }"
                                   type="button"
-                                  id="login"
+                                   id="login"
                                   >
                               ${loading ? 'Logging in...' : 'Login'}
                               </button>
@@ -100,11 +113,11 @@ function renderApplication(container) {
                     </div>
                 </div>
             </nav>
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
+            <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit User</h1>
+                            <h1 class="modal-title fs-5" id="viewModalLabel">Edit User</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -116,7 +129,7 @@ function renderApplication(container) {
                                     id="firstname"
                                     placeholder="First Name"
                                     oninput="handleInput()"
-                                    value="${checkUser[0]?.firstname ?? ''}"
+                                    value="${checkUser[0]?.firstname}"
                                     />
                                 </div>
                                 <div class="mb-3">
@@ -126,7 +139,7 @@ function renderApplication(container) {
                                     id="lastname"
                                     placeholder="Last Name"
                                     oninput="handleInput()"
-                                    value="${checkUser[0]?.lastname ?? ''}"
+                                    value="${checkUser[0]?.lastname}"
                                     />
                                 </div>
                                 <div class="mb-3">
@@ -136,7 +149,7 @@ function renderApplication(container) {
                                     id="email"
                                     placeholder="Email"
                                     oninput="handleInput()"
-                                    value="${checkUser[0]?.email ?? ''}"
+                                    value="${checkUser[0]?.email}"
                                     />
                                 </div>
                                 <div class="mb-3">
@@ -146,7 +159,7 @@ function renderApplication(container) {
                                     id="phone"
                                     placeholder="Phone"
                                     oninput="handleInput()"
-                                    value="${checkUser[0]?.phone ?? ''}"
+                                    value="${checkUser[0]?.phone}"
                                     />
                                 </div>
                                 <div class="mb-3">
@@ -156,18 +169,18 @@ function renderApplication(container) {
                                     id="username"
                                     placeholder="Username"
                                     oninput="handleInput()"
-                                    value="${checkUser[0]?.username ?? ''}"
+                                    value="${checkUser[0]?.username}"
                                     />
                                 </div>
                             </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="saveUser">Save changes</button>
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
             <div class="container py-3">
             <h2>List of Users</h2>
                 <table id="users" class="table">
@@ -197,10 +210,10 @@ function renderApplication(container) {
                           selectedUser.phone ?? 'Contact not available'
                         }
                     </p>
-                    <button class="btn btn-primary card-link" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <button class="btn btn-primary card-link" id="selectUser" data-bs-toggle="modal" data-bs-target="#viewModal">
                         Edit
                     </button>
-                     <button class="btn btn-danger card-link">
+                     <button class="btn btn-danger card-link" data-bs-toggle="modal" data-bs-target="#deleteModal">
                         Delete
                     </button>
                     <a href="./index.html" class="btn btn-warning card-link">
@@ -208,10 +221,71 @@ function renderApplication(container) {
                     </a>
                     </div>
                 </div>
+
+                <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="deleteModalLabel">Delete User</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete <b>${
+                              selectedUser?.fullname
+                            }</b>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="deleteUser">Delete</button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
             </div>
             `);
+    console.log(initialState.users);
 
     // Add event listeners
+    $('#saveUser').on('click', () => {
+      initialState.users[foundIndex + 1] = {
+        firstname: initialState.firstname,
+        lastname: initialState.lastname,
+        email: initialState.email,
+        phone: initialState.phone,
+        username: initialState.username,
+        password: initialState.password,
+      };
+
+      console.log(initialState.users);
+      addUsersToLocalStorage(initialState.users);
+      render();
+      toastr.success(`Saved!`);
+    });
+
+    $('#deleteUser').on('click', () => {
+      var users = initialState.users?.filter(
+        (user) => user.username !== checkUser[0]?.username
+      );
+
+      addUsersToLocalStorage(users);
+      var newUsers = initialState.users?.filter(
+        (user) =>
+          user.username !== initialState.userProfile?.username &&
+          user.username !== checkUser[0]?.username
+      );
+      checkUser = undefined;
+
+      datatable.rows.add(newUsers);
+      datatable.draw();
+
+      toastr.success(`Deleted!`);
+    });
+
+    $('#selectUser').on('click', () => {
+      initialState = { ...initialState, ...checkUser[0] };
+    });
+
     $('#view').on('click', () => {
       initialState = { ...initialState, viewUser: {} };
       render();
@@ -220,7 +294,6 @@ function renderApplication(container) {
     $('#logout').on('click', () => {
       loading = true;
       render();
-      console.log(loading);
       removeUserFromLocalStorage();
       toastr.success(`Logged out!`);
       setTimeout(function () {
@@ -258,9 +331,10 @@ function renderApplication(container) {
         toastr.error('Incorrect username or password');
       }
     });
-
-    $('#users').DataTable({
-      data: initialState.users,
+    var datatable = $('#users').DataTable({
+      data: initialState.users?.filter(
+        (user) => user.username !== initialState.userProfile?.username
+      ),
       columns: [
         {
           data: 'firstname',
@@ -274,6 +348,7 @@ function renderApplication(container) {
         },
       ],
     });
+    datatable.clear();
   };
 
   render(); // Initial render
